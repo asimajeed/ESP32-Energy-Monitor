@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32 Power Meter Settings</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/x-icon" href="icon.png">
+  <script defer src="script.js"></script>
+</head>
+
+<body>
+  <header class="header">
+    <h1>ESP32 Power Meter</h1>
+  </header>
+  <div class="container">
+    <div class="status-container">
+      <h2>Current Status</h2>
+      <div class="status">
+        <div>
+          <div class="status-item">
+            <label>P<sub>1</sub>:</label>
+            <span class="display" id="powerValue1"></span>
+            <label>W</label>
+          </div>
+          <div class="status-item">
+            <label>I<sub>RMS</sub> <sub>1</sub>:</label>
+            <span class="display" id="irmsValue1"></span>
+            <label>A</label>
+          </div>
+        </div>
+        <div>
+          <div class="status-item">
+            <label>P<sub>2</sub>:</label>
+            <span class="display" id="powerValue2"></span>
+            <label>W</label>
+          </div>
+          <div class="status-item">
+            <label>I<sub>RMS</sub> <sub>2</sub>:</label>
+            <span class="display" id="irmsValue2"></span>
+            <label>A</label>
+          </div>
+        </div>
+        <div>
+          <div class="status-item">
+            <label>P<sub>3</sub>:</label>
+            <span class="display" id="powerValue3"></span>
+            <label>W</label>
+          </div>
+          <div class="status-item">
+            <label>I<sub>RMS</sub> <sub>3</sub>:</label>
+            <span class="display" id="irmsValue3"></span>
+            <label>A</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="link">
+      <h2>
+        <a href="YOUR SHEET URL" target="_blank" title="Click to visit google spreadsheet.">Google Sheet Link</a>
+      </h2>
+    </div>
+    <div class="settings">
+      <h2>Adjust Settings</h2>
+      <form id="settingsForm">
+        <div class="form-group">
+          <label for="houseVoltage">House Voltage (V):</label>
+          <input type="number" step="0.1" id="houseVoltage" name="houseVoltage" required>
+        </div>
+        <div class="form-group">
+          <label for="calibrationVal1">Calibration Value 1:</label>
+          <input type="number" step="any" id="calibrationVal1" name="calibrationVal1" required>
+        </div>
+        <div class="form-group">
+          <label for="calibrationVal2">Calibration Value 2:</label>
+          <input type="number" step="any" id="calibrationVal2" name="calibrationVal2" required>
+        </div>
+        <div class="form-group">
+          <label for="calibrationVal3">Calibration Value 3:</label>
+          <input type="number" step="any" id="calibrationVal3" name="calibrationVal3" required>
+        </div>
+        <div class="form-group">
+          <label for="numMeasurements">Number of measurements before upload:</label>
+          <input type="number" step="1" id="numMeasurements" name="numMeasurements" required>
+        </div>
+        <div class="form-group">
+          <label for="interval">Interval between measurement (s):</label>
+          <input type="number" min="1" step="1" id="interval" name="interval" required>
+        </div>
+        <button type="submit">Update Settings</button>
+        <p id="settingsStatus"></p>
+      </form>
+    </div>
+    <div class="reset-div">
+      <h2>Quick Buttons</h2>
+      <button id="resetWifiButton">Reset WiFi Details</button>
+      <button id="restartButton">Restart Device</button>
+      <p id="resetStatus"></p>
+    </div>
+    <div class="ota-update">
+      <h2>Over-the-Air (OTA) Update</h2>
+      <form id="otaForm" enctype="multipart/form-data">
+        <input type="file" name="firmware" id="firmware" required>
+        <button type="submit">Upload</button>
+        <p id="otaStatus"></p>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>

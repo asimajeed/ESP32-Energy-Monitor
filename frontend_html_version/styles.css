@@ -1,0 +1,174 @@
+/* Reset styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f2f2f2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+}
+
+.header {
+  background-color: #0062ff;
+  color: #fff;
+  width: 100%;
+  text-align: center;
+  padding: 15px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-size: 1.2rem;
+}
+span {
+  margin-left: auto;
+}
+.container {
+  max-width: 800px;
+  width: 100%;
+  padding: 20px;
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin-top: 20px;
+}
+
+h2 {
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+}
+
+.status-container {
+  margin-bottom: 30px;
+}
+
+.status {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-direction: row;
+}
+.status > div {
+  width: 9rem;
+}
+.status-item {
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.status-item > label:last-child {
+  width: 1rem;
+}
+
+label {
+  font-weight: 500;
+  display: inline-block;
+  text-align: center;
+}
+
+.settings,
+.ota-update,
+.reset-div,
+.link {
+  border-top: 1px solid #dddddd;
+  padding-top: 20px;
+}
+
+.link {
+  padding-bottom: 20px;
+}
+
+form {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.display {
+  font-weight: 600;
+  font-size: 1.3rem;
+}
+
+.form-group {
+  width: 90%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 2.25rem;
+}
+
+.form-group label {
+  padding: 0px;
+  text-align: left;
+  width: auto;
+  align-self: center;
+}
+
+input[type="file"],
+input[type="number"] {
+  width: 6rem;
+  text-align: center;
+  padding: 3px;
+  align-self: center;
+}
+
+#firmware {
+  width: 12rem;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #0062ff;
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+  transition: 100ms;
+}
+
+button:hover {
+  background-color: #0086ff;
+}
+
+button:active {
+  background-color: #002390;
+}
+
+#otaStatus,
+#settingsStatus,
+#resetStatus {
+  margin-top: 10px;
+  font-style: italic;
+}
+
+
+#resetWifiButton, #restartButton {
+  width: 9.5rem;
+}
+
+@media only screen and (max-width: 500px) {
+  .container{
+    padding: 20px 0px;
+  }
+  .status-item {
+    font-size: 0.9rem;
+  }
+  .status > div {
+    width: auto;
+  }
+  .status-item:first-child {
+    width: 7rem;
+  }
+  .status {
+    justify-content: space-between;
+  }
+}

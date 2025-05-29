@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-
-// Import all the smaller components (you'll create these as separate files)
 import Header from './components/Header';
 import StatusMessage from './components/StatusMessage';
 import CurrentStatus from './components/CurrentStatus';
-import GoogleSheetsLink from './components/GoogleSheetsLink';
+import EnergyCalculator from './components/EnergyCalculator';
 import SettingsPanel from './components/SettingsPanel';
 import QuickActions from './components/QuickActions';
 import OTAUpdate from './components/OTAUpdate';
 import type { StatusData, SettingsData } from './utils/types';
+import EnergyTrends from './components/EnergyTrends';
 
 const PowerMeterDashboard: React.FC = () => {
   const [status, setStatus] = useState<StatusData>({ irms1: 0, irms2: 0, irms3: 0 });
@@ -157,7 +156,9 @@ const PowerMeterDashboard: React.FC = () => {
 
         <CurrentStatus status={status} voltage={settings.hV} />
 
-        <GoogleSheetsLink />
+        <EnergyTrends />
+
+        <EnergyCalculator /> {/* Replaced GoogleSheetsLink */}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <SettingsPanel

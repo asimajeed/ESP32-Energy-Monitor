@@ -4,7 +4,7 @@
 
 A wireless energy monitoring system built with ESP32 that measures current and power consumption across 3 independent circuits. Features real-time data logging to Google Sheets, a modern web dashboard, over-the-air updates, and precise calibration capabilities. Working on serverless data processing at the moment.
 
-![Dashboard Screenshot](assets/dashboard_screenshot.png)
+![Dashboard Screenshot](screenshots/dashboard_screenshot.png)
 _Modern web interface showing real-time current measurements across three phases_
 
 ## 🚀 Features
@@ -55,7 +55,7 @@ _Modern web interface showing real-time current measurements across three phases
 
 ## 🔌 Circuit Diagram
 
-![Circuit Diagram](assets/circuit_diagram.jpg)
+![Circuit Diagram](screenshots/circuit_diagram.jpg)
 _Complete wiring diagram showing ESP32 connections to CT sensors_
 
 ### Pin Configuration

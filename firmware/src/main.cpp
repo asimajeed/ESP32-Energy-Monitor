@@ -7,13 +7,13 @@
 #include <LittleFS.h>
 #include <Preferences.h>
 #include <HTTPClient.h>
-#include <NTPClient.h>
-#include <WiFiUdp.h>
+#include <WiFi.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <esp_task_wdt.h>
 #include <ArduinoJson.h>
-#include <ctime>
+#include <time.h>
+#include <sys/time.h>
 #include "config.h"
 #define DEBUG_MODE  // uncomment to run debug
 
@@ -39,9 +39,11 @@ void loadPreferences();
 void connectToWifi(void *);
 unsigned long roundToNearestMultiple(unsigned long num, int multiple);
 std::string EPOCHtoString(unsigned long);
-void logToGoogleSheets(void *);
+void logToAWSScript(void *);
 void settingsServer();
 void handleOTAUpdates(void *);
+void initializeTime();
+unsigned long getEpochTime();
 
 AsyncWebServer server(80);
 Preferences preferences;
@@ -60,6 +62,13 @@ int interval;
 EnergyMonitor emon1;
 EnergyMonitor emon2;
 EnergyMonitor emon3;
+
+// NTP servers
+const char* ntpServer1 = "pool.ntp.org";
+const char* ntpServer2 = "time.nist.gov";
+const char* ntpServer3 = "time.cloudflare.com";
+const long gmtOffset_sec = 5 * 3600; // 5 hours offset for timezone
+const int daylightOffset_sec = 0;
 
 void setup() {
   DEBUG_BEGIN(115200);
@@ -85,6 +94,9 @@ void setup() {
 
   // Connect to WiFi
   connectToWifi(NULL);
+  
+  // Initialize time
+  initializeTime();
 
   xTaskCreatePinnedToCore(
     updateCurrent,
@@ -97,7 +109,7 @@ void setup() {
   );
 
   xTaskCreatePinnedToCore(
-    logToGoogleSheets,
+    logToAWSScript,
     "Log to Google Task",
     12000,
     NULL,
@@ -120,8 +132,36 @@ void setup() {
 }
 
 void loop() {
-  // Fix: Don't delete the main task, just delay
   delay(1000);
+}
+
+void initializeTime() {
+  DEBUG_PRINT("Synchronizing time");
+  
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2, ntpServer3);
+  
+  struct tm timeinfo;
+  int attempts = 0;
+  while (!getLocalTime(&timeinfo) && attempts < 20) {
+    delay(500);
+    attempts++;
+    DEBUG_PRINT(".");
+  }
+  
+  if (attempts >= 20) {
+    DEBUG_PRINTLN("Failed to obtain time");
+  } else {
+    DEBUG_PRINTLN("Time synchronized");
+    char timeStr[64];
+    strftime(timeStr, sizeof(timeStr), "%A, %B %d %Y %H:%M:%S", &timeinfo);
+    DEBUG_PRINTLN(timeStr);
+  }
+}
+
+unsigned long getEpochTime() {
+  time_t now;
+  time(&now);
+  return (unsigned long)now;
 }
 
 void updateCurrent(void *parameters)
@@ -217,19 +257,17 @@ std::string EPOCHtoString(unsigned long epoch)
     time_t now = epoch;
     struct tm ts;
     ts = *localtime(&now);
-    strftime(temp, sizeof(temp), "%d/%m/%Y %H:%M:%S", &ts);
+    strftime(temp, sizeof(temp), "%Y-%m-%dT%H:%M:%S", &ts);
     str.append(temp);
+    str.append("Z");
     return str;
 }
 
-void logToGoogleSheets(void *)
+void logToAWSScript(void *)
 {
   int counter = 0;
-  WiFiUDP ntpUDP;
-  NTPClient timeClient(ntpUDP, 5 * 60 * 60);
-  String googleScriptUrl = (SCRIPT_LINK);
+  String ScriptUrl = (SCRIPT_LINK);
   JsonDocument jsonData;
-  timeClient.begin();
   esp_task_wdt_init(interval + 20, true);
   esp_task_wdt_add(NULL);
 
@@ -241,8 +279,7 @@ void logToGoogleSheets(void *)
     
     if (interval % 5 == 0) {
       while (true) {
-        timeClient.forceUpdate();
-        unsigned long epochTime = timeClient.getEpochTime();
+        unsigned long epochTime = getEpochTime();
         esp_task_wdt_reset();
         if (epochTime % interval == 0 && initialized) {
           break;
@@ -254,8 +291,7 @@ void logToGoogleSheets(void *)
     while (initialized) {
       unsigned long start = millis();
       if (counter < numMeasurements) {
-        timeClient.update();
-        jsonData["Time"].add(EPOCHtoString(roundToNearestMultiple(timeClient.getEpochTime(), interval)));
+        jsonData["Time"].add(EPOCHtoString(roundToNearestMultiple(getEpochTime(), interval)));
         jsonData["IRMS1"].add(int(currentIrms_1 * 100) / 100.0);
         jsonData["IRMS2"].add(int(currentIrms_2 * 100) / 100.0);
         jsonData["IRMS3"].add(int(currentIrms_3 * 100) / 100.0);
@@ -270,10 +306,15 @@ void logToGoogleSheets(void *)
         serializeJson(jsonData, payload);
         jsonData.clear();
         DEBUG_PRINTLN(payload);
-        http.begin(googleScriptUrl);
+        http.begin(ScriptUrl);
+        http.addHeader("Content-Type", "application/json");
         int httpResponseCode = http.POST(payload);
-        DEBUG_PRINT("HTTP Response: ");
-        DEBUG_PRINTLN(httpResponseCode);
+        #ifdef DEBUG_MODE
+          String response = http.getString();
+          DEBUG_PRINT("HTTP Response: ");
+          DEBUG_PRINT(response);
+          DEBUG_PRINTLN(httpResponseCode);
+        #endif
         http.end();
         counter = 0;
       }
@@ -497,6 +538,6 @@ void handleOTAUpdates(void *parameters)
   
   while (true) {
     ArduinoOTA.handle();
-    vTaskDelay(100 / portTICK_PERIOD_MS); // Fix: Add small delay
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }

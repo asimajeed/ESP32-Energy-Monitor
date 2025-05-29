@@ -1,4 +1,5 @@
-.pio
-.vscode
-data/*
-src/config.h
+*node_modules
+*.env
+DataCleaning
+nodejs
+*.zip

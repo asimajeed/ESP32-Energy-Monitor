@@ -14,7 +14,7 @@
 #include <ArduinoJson.h>
 #include <time.h>
 #include <sys/time.h>
-#include "config.h"
+#include "config.h" // config with relevant secrets
 #define DEBUG_MODE  // uncomment to run debug
 
 #ifndef DEBUG_MODE
@@ -308,6 +308,7 @@ void logToAWSScript(void *)
         DEBUG_PRINTLN(payload);
         http.begin(ScriptUrl);
         http.addHeader("Content-Type", "application/json");
+        http.addHeader("authorization", API_SECRET);
         int httpResponseCode = http.POST(payload);
         #ifdef DEBUG_MODE
           String response = http.getString();

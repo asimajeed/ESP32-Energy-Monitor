@@ -27,24 +27,24 @@ export const handler = async (event) => {
       body: JSON.stringify({ error: "Invalid ISO date format" }),
     };
   }
+
   let client;
   try {
     client = await connectToDatabase();
     const db = client.db("power_meter");
     const collection = db.collection("readings");
 
-    const results = await collection
-      .find({
-        Time: { $gte: startDate, $lte: endDate },
-      })
-      .project({
-        Time: 1,
-        IRMS1: 1,
-        IRMS2: 1,
-        IRMS3: 1,
-        _id: 0,
-      })
-      .toArray();
+    const results = await collection.find({
+      Time: { $gte: startDate, $lte: endDate }
+    });
+    //   ,
+    // }).project({
+    //   Time: 1,
+    //   IRMS1: 1,
+    //   IRMS2: 1,
+    //   IRMS3: 1,
+    //   _id: 0
+    // }).toArray();
 
     return {
       statusCode: 200,
@@ -59,10 +59,3 @@ export const handler = async (event) => {
     };
   }
 };
-
-(async () => {
-  const response = await handler({
-    queryStringParameters: { start_date: "2025-06-01", end_date: "2025-06-01T00:59" },
-  });
-  console.log(response);
-})();

@@ -18,7 +18,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({ phase, current, voltage }) => {
           <span className="text-sm text-gray-600">Power:</span>
           <div className="flex items-center gap-1">
             <span className="text-lg font-bold text-blue-600">
-              {calculatePower(current)}
+              {calculatePower(current ?? 0)}
             </span>
             <span className="text-sm text-gray-500">W</span>
           </div>

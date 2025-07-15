@@ -28,7 +28,7 @@ const CurrentStatus: React.FC<CurrentStatusProps> = ({ voltage }) => {
   })
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 mb-8">
       <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
         <Power className="w-5 h-5 text-blue-600" />
         Current Status

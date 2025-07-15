@@ -5,6 +5,25 @@ const parseISODate = (dateStr) => {
   return isNaN(date.getTime()) ? null : date;
 };
 
+const buildAggregationPipeline = (startDate, endDate) => [
+  { $match: { Time: { $gte: startDate, $lte: endDate } } },
+  {
+    $project: {
+      formatted: {
+        $concat: [
+          { $toString: "$Time" },
+          ", ",
+          { $toString: "$IRMS1" },
+          ", ",
+          { $toString: "$IRMS2" },
+          ", ",
+          { $toString: "$IRMS3" },
+        ],
+      },
+    },
+  },
+];
+
 export const handler = async (event) => {
   const queryParams = event.queryStringParameters || {};
   const { start_date, end_date } = queryParams;
@@ -12,10 +31,7 @@ export const handler = async (event) => {
   if (!start_date || !end_date) {
     return {
       statusCode: 400,
-      body: JSON.stringify({
-        error: `Missing required parameters: start_date and end_date`,
-        received: event.queryStringParameters,
-      }),
+      body: JSON.stringify({ error: `Missing required parameters: start_date and end_date ${JSON.stringify(event.queryStringParameters)}` }),
     };
   }
 
@@ -34,22 +50,18 @@ export const handler = async (event) => {
     const db = client.db("power_meter");
     const collection = db.collection("readings");
 
-    const results = await collection.find({
-      Time: { $gte: startDate, $lte: endDate }
-    });
-    //   ,
-    // }).project({
-    //   Time: 1,
-    //   IRMS1: 1,
-    //   IRMS2: 1,
-    //   IRMS3: 1,
-    //   _id: 0
-    // }).toArray();
+    const pipeline = buildAggregationPipeline(startDate, endDate);
+    const cursor = collection.aggregate(pipeline);
+
+    const results = [];
+    for await (const doc of cursor) {
+      results.push(doc.formatted);
+    }
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(results),
+      headers: { "Content-Type": "text/plain" },
+      body: results.join("\n"),
     };
   } catch (err) {
     console.error("Error querying MongoDB:", err);

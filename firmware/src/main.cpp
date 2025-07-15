@@ -100,7 +100,7 @@ void setup() {
 
   xTaskCreatePinnedToCore(
     updateCurrent,
-    "Update Current Task",
+    "Update Current",
     2048,
     NULL,
     2,
@@ -499,25 +499,9 @@ void settingsServer() {
 
 void handleOTAUpdates(void *parameters)
 {
-  ArduinoOTA.setHostname("ESP32-PowerMeter");
-  ArduinoOTA.setPassword("your_ota_password"); // Fix: Add OTA password
-  
-  ArduinoOTA.onStart([]() {
-    String type;
-    if (ArduinoOTA.getCommand() == U_FLASH) {
-      type = "sketch";
-    } else {
-      type = "filesystem";
-    }
-    DEBUG_PRINTLN("Start updating " + type);
-  });
   
   ArduinoOTA.onEnd([]() {
     DEBUG_PRINTLN("\nEnd");
-  });
-  
-  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-    DEBUG_PRINTLN("Progress: " + String(progress / (total / 100)) + "%");
   });
   
   ArduinoOTA.onError([](ota_error_t error) {

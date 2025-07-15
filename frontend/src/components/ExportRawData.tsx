@@ -96,7 +96,7 @@ const ExportRawData: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 mb-8">
       <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
         <DatabaseZap className="w-5 h-5 text-yellow-600" />
         Export Raw Data
@@ -106,22 +106,22 @@ const ExportRawData: React.FC = () => {
         {/* DateTime Selection */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Start Date & Time</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Start Date & Time</label>
             <input
               type="datetime-local"
               value={startDateTime}
               onChange={(e) => setStartDateTime(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:scheme-dark"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">End Date & Time</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">End Date & Time</label>
             <input
               type="datetime-local"
               value={endDateTime}
               onChange={(e) => setEndDateTime(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:scheme-dark"
             />
           </div>
         </div>
@@ -131,7 +131,7 @@ const ExportRawData: React.FC = () => {
           <Button
             onClick={exportData}
             disabled={isLoading || !startDateTime || !endDateTime}
-            className="bg-green-600 hover:bg-green-700 flex items-center gap-2"
+            className="bg-green-600 text-white hover:bg-green-700 flex items-center gap-2"
           >
             <Download className="w-4 h-4" />
             {isLoading ? "Exporting..." : "Export CSV"}

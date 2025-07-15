@@ -16,7 +16,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
   isLoading
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div className="bg-white transition-colors dark:bg-gray-900 rounded-xl shadow-lg p-6">
       <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
         <Settings className="w-5 h-5 text-blue-600" />
         Settings
@@ -24,50 +24,50 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({
       
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             House Voltage (V)
             <input
               type="number"
               value={settings.hV}
               onChange={(e) => onSettingsChange('hV', parseFloat(e.target.value) || 0)}
               step="0.1"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:scheme"
             />
           </label>
           
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Measurements Count
             <input
               type="number"
               value={settings.numms}
               onChange={(e) => onSettingsChange('numms', parseInt(e.target.value) || 0)}
               min="1"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:scheme"
             />
           </label>
         </div>
         
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Interval (seconds)
           <input
             type="number"
             value={settings.interval}
             onChange={(e) => onSettingsChange('interval', parseInt(e.target.value) || 0)}
             min="1"
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:scheme"
           />
         </label>
         
         <div className="grid grid-cols-3 gap-4">
           {[1, 2, 3].map((cal) => (
-            <label key={cal} className="block text-sm font-medium text-gray-700">
+            <label key={cal} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Calibration {cal}
               <input
                 type="number"
                 value={settings[`cV${cal}` as keyof SettingsData]}
                 onChange={(e) => onSettingsChange(`cV${cal}` as keyof SettingsData, parseFloat(e.target.value) || 0)}
                 step="any"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:scheme"
               />
             </label>
           ))}

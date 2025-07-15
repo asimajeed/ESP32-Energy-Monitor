@@ -15,7 +15,7 @@ const OTAUpdate: React.FC<OTAUpdateProps> = ({
   isLoading
 }) => {
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6">
       <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
         <Upload className="w-5 h-5 text-blue-600" />
         Firmware Update
@@ -23,14 +23,14 @@ const OTAUpdate: React.FC<OTAUpdateProps> = ({
       
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Select Firmware File
           </label>
           <input
             type="file"
             accept=".bin"
             onChange={(e) => onFileSelect(e.target.files?.[0] || null)}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="block w-full text-sm text-gray-500 dark:text-gray-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-900 hover:file:bg-blue-100"
           />
         </div>
         

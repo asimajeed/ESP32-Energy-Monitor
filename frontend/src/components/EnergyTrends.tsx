@@ -48,10 +48,24 @@ const DailyEnergyChart = React.memo(({ data }: { data: Array<{ name: string; val
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-          <YAxis />
-          <Tooltip formatter={(value) => [`${Number(value).toFixed(2)} kWh`, "Energy"]} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          <XAxis 
+            dataKey="name" 
+            angle={-45} 
+            textAnchor="end" 
+            height={80}
+            tick={{ fill: '#9CA3AF', fontSize: 12 }}
+          />
+          <YAxis tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+          <Tooltip 
+            formatter={(value) => [`${Number(value).toFixed(2)} kWh`, "Energy"]}
+            contentStyle={{ 
+              backgroundColor: '#1F2937', 
+              border: '1px solid #374151',
+              borderRadius: '8px',
+              color: '#F9FAFB'
+            }}
+          />
           <Line type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} dot={{ fill: "#3B82F6" }} />
         </LineChart>
       </ResponsiveContainer>
@@ -64,10 +78,24 @@ const DailyCostChart = React.memo(({ data }: { data: Array<{ name: string; value
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-          <YAxis />
-          <Tooltip formatter={(value) => [`₨${Number(value).toFixed(0)}`, "Cost"]} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          <XAxis 
+            dataKey="name" 
+            angle={-45} 
+            textAnchor="end" 
+            height={80}
+            tick={{ fill: '#9CA3AF', fontSize: 12 }}
+          />
+          <YAxis tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+          <Tooltip 
+            formatter={(value) => [`₨${Number(value).toFixed(0)}`, "Cost"]}
+            contentStyle={{ 
+              backgroundColor: '#1F2937', 
+              border: '1px solid #374151',
+              borderRadius: '8px',
+              color: '#F9FAFB'
+            }}
+          />
           <Line type="monotone" dataKey="value" stroke="#10B981" strokeWidth={2} dot={{ fill: "#10B981" }} />
         </LineChart>
       </ResponsiveContainer>
@@ -80,10 +108,21 @@ const HourlyAvgChart = React.memo(({ data }: { data: Array<{ name: string; value
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip formatter={(value) => [`${Number(value).toFixed(3)} kWh`, "Avg Energy"]} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          <XAxis 
+            dataKey="name"
+            tick={{ fill: '#9CA3AF', fontSize: 12 }}
+          />
+          <YAxis tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+          <Tooltip 
+            formatter={(value) => [`${Number(value).toFixed(3)} kWh`, "Avg Energy"]}
+            contentStyle={{ 
+              backgroundColor: '#1F2937', 
+              border: '1px solid #374151',
+              borderRadius: '8px',
+              color: '#F9FAFB'
+            }}
+          />
           <Bar dataKey="value" fill="#8B5CF6" />
         </BarChart>
       </ResponsiveContainer>
@@ -96,10 +135,21 @@ const WeekdayAvgChart = React.memo(({ data }: { data: Array<{ name: string; valu
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip formatter={(value) => [`${Number(value).toFixed(2)} kWh`, "Avg Energy"]} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          <XAxis 
+            dataKey="name"
+            tick={{ fill: '#9CA3AF', fontSize: 12 }}
+          />
+          <YAxis tick={{ fill: '#9CA3AF', fontSize: 12 }} />
+          <Tooltip 
+            formatter={(value) => [`${Number(value).toFixed(2)} kWh`, "Avg Energy"]}
+            contentStyle={{ 
+              backgroundColor: '#1F2937', 
+              border: '1px solid #374151',
+              borderRadius: '8px',
+              color: '#F9FAFB'
+            }}
+          />
           <Bar dataKey="value" fill="#F59E0B" />
         </BarChart>
       </ResponsiveContainer>
@@ -125,18 +175,26 @@ const AccordionSection = React.memo(
     onToggle: (id: string) => void;
   }) => {
     return (
-      <div className="border border-gray-200 rounded-lg mb-4">
+      <div className="border border-gray-200 dark:border-gray-700 rounded-lg mb-4">
         <button
           onClick={() => onToggle(id)}
-          className="w-full flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 transition-colors rounded-t-lg"
+          className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors rounded-t-lg"
         >
           <div className="flex items-center gap-2">
-            <Icon className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
+            <Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">{title}</h3>
           </div>
-          {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+          {isExpanded ? (
+            <ChevronUp className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+          )}
         </button>
-        {isExpanded && <div className="p-4 bg-white rounded-b-lg">{children}</div>}
+        {isExpanded && (
+          <div className="p-4 bg-white dark:bg-gray-900 rounded-b-lg border-t border-gray-200 dark:border-gray-700">
+            {children}
+          </div>
+        )}
       </div>
     );
   }
@@ -145,19 +203,16 @@ const AccordionSection = React.memo(
 const EnergyTrends: React.FC = () => {
   const today = new Date();
   const tzOffsetMs = today.getTimezoneOffset() * 60 * 1000;
-  // today.setTime(today.getTime() - today.getTimezoneOffset() * 60 * 1000);
 
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth();
 
   const [startDate, setStartDate] = useState(
-    new Date (new Date(currentYear, currentMonth <= 0 ? 12 : currentMonth - 1, 10, 0, 0).getTime() - tzOffsetMs).toISOString().slice(0, -8)
+    new Date(new Date(currentYear, currentMonth <= 0 ? 12 : currentMonth - 1, 10, 0, 0).getTime() - tzOffsetMs).toISOString().slice(0, -8)
   );
   const [endDate, setEndDate] = useState(
-    new Date (new Date(currentYear, currentMonth, 9, 23, 59).getTime() - tzOffsetMs).toISOString().slice(0, -8)
+    new Date(new Date(currentYear, currentMonth, 9, 23, 59).getTime() - tzOffsetMs).toISOString().slice(0, -8)
   );
-  // const [startDate, setStartDate] = useState<string>("2025-03-10T00:00");
-  // const [endDate, setEndDate] = useState<string>("2025-04-09T23:59");
   const [baseRate, setBaseRate] = useState<number>(35);
   const [peakRate, setPeakRate] = useState<number>(40);
   const [peakStart, setPeakStart] = useState<string>("18:30");
@@ -240,70 +295,70 @@ const EnergyTrends: React.FC = () => {
   }, []);
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-      <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-        <TrendingUp className="w-5 h-5 text-green-600" />
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 mb-8">
+      <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+        <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
         Energy Trends Analysis
       </h2>
 
       {/* Input Form */}
-      <div className="bg-gray-50 rounded-lg p-4 mb-6">
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Start Date *</label>
             <input
               type="datetime-local"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:scheme-dark"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">End Date *</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">End Date *</label>
             <input
               type="datetime-local"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:scheme-dark"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Base Rate (PKR) *</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Base Rate (PKR) *</label>
             <input
               type="number"
               value={baseRate}
               onChange={(e) => setBaseRate(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:scheme-dark"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Peak Rate (PKR)</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Peak Rate (PKR)</label>
             <input
               type="number"
               value={peakRate}
               onChange={(e) => setPeakRate(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:scheme-dark"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Peak Start Time</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Peak Start Time</label>
             <input
               type="time"
               value={peakStart}
               onChange={(e) => setPeakStart(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:scheme-dark"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Peak End Time</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Peak End Time</label>
             <input
               type="time"
               value={peakEnd}
               onChange={(e) => setPeakEnd(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 dark:scheme-dark"
             />
           </div>
         </div>
@@ -312,14 +367,14 @@ const EnergyTrends: React.FC = () => {
           <button
             onClick={fetchTrendData}
             disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? "Analyzing..." : "Analyze Trends"}
           </button>
           <button
             onClick={resetData}
             disabled={isLoading}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gray-600 hover:bg-gray-700 dark:bg-gray-500 dark:hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Reset
           </button>
@@ -328,8 +383,8 @@ const EnergyTrends: React.FC = () => {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <p className="text-red-700 text-sm">{error}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+          <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
         </div>
       )}
 
@@ -345,46 +400,46 @@ const EnergyTrends: React.FC = () => {
             onToggle={toggleSection}
           >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-blue-600 mb-1">
+              <div className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-4 text-center border border-blue-200 dark:border-blue-800">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
                   {trendData.total_energy_kWh.toFixed(2)}
                 </div>
-                <div className="text-sm text-gray-600">Total Energy (kWh)</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Total Energy (kWh)</div>
               </div>
-              <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-green-600 mb-1">
+              <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg p-4 text-center border border-green-200 dark:border-green-800">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
                   ₨{trendData.total_cost_PKR.toFixed(0)}
                 </div>
-                <div className="text-sm text-gray-600">Total Cost (PKR)</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Total Cost (PKR)</div>
               </div>
-              <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-orange-600 mb-1">
+              <div className="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-lg p-4 text-center border border-orange-200 dark:border-orange-800">
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400 mb-1">
                   {trendData.on_peak_energy_kWh.toFixed(2)}
                 </div>
-                <div className="text-sm text-gray-600">Peak Energy (kWh)</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Peak Energy (kWh)</div>
               </div>
-              <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-purple-600 mb-1">
+              <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-lg p-4 text-center border border-purple-200 dark:border-purple-800">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
                   {trendData.off_peak_energy_kWh.toFixed(2)}
                 </div>
-                <div className="text-sm text-gray-600">Off-Peak Energy (kWh)</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Off-Peak Energy (kWh)</div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div className="bg-red-50 rounded-lg p-4">
-                <h4 className="font-semibold text-red-800 mb-2">Peak Hours Cost</h4>
-                <div className="text-xl font-bold text-red-600">₨{trendData.on_peak_cost_PKR.toFixed(0)}</div>
-                <div className="text-sm text-gray-600">
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                <h4 className="font-semibold text-red-800 dark:text-red-300 mb-2">Peak Hours Cost</h4>
+                <div className="text-xl font-bold text-red-600 dark:text-red-400">₨{trendData.on_peak_cost_PKR.toFixed(0)}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {((trendData.on_peak_cost_PKR / trendData.total_cost_PKR) * 100).toFixed(1)}% of total cost
                 </div>
               </div>
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h4 className="font-semibold text-blue-800 mb-2">Off-Peak Hours Cost</h4>
-                <div className="text-xl font-bold text-blue-600">
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Off-Peak Hours Cost</h4>
+                <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
                   ₨{trendData.off_peak_cost_PKR.toFixed(0)}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {((trendData.off_peak_cost_PKR / trendData.total_cost_PKR) * 100).toFixed(1)}% of total cost
                 </div>
               </div>
@@ -401,12 +456,12 @@ const EnergyTrends: React.FC = () => {
           >
             <div className="space-y-6">
               <div>
-                <h4 className="font-semibold text-gray-800 mb-3">Daily Energy Consumption (kWh)</h4>
+                <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Daily Energy Consumption (kWh)</h4>
                 {chartData?.dailyEnergy && <DailyEnergyChart data={chartData.dailyEnergy} />}
               </div>
 
               <div>
-                <h4 className="font-semibold text-gray-800 mb-3">Daily Cost (PKR)</h4>
+                <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Daily Cost (PKR)</h4>
                 {chartData?.dailyCost && <DailyCostChart data={chartData.dailyCost} />}
               </div>
             </div>
@@ -422,12 +477,12 @@ const EnergyTrends: React.FC = () => {
           >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-semibold text-gray-800 mb-3">Average Hourly Consumption</h4>
+                <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Average Hourly Consumption</h4>
                 {chartData?.hourlyAvg && <HourlyAvgChart data={chartData.hourlyAvg} />}
               </div>
 
               <div>
-                <h4 className="font-semibold text-gray-800 mb-3">Average by Day of Week</h4>
+                <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Average by Day of Week</h4>
                 {chartData?.weekdayAvg && <WeekdayAvgChart data={chartData.weekdayAvg} />}
               </div>
             </div>
@@ -442,17 +497,17 @@ const EnergyTrends: React.FC = () => {
             onToggle={toggleSection}
           >
             <div>
-              <h4 className="font-semibold text-gray-800 mb-3">Highest Usage Hours</h4>
+              <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-3">Highest Usage Hours</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {trendData.peak_usage_hours.labels.map((label, index) => (
                   <div
                     key={index}
-                    className="bg-gradient-to-r from-red-50 to-pink-50 rounded-lg p-4 text-center"
+                    className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-center"
                   >
-                    <div className="text-lg font-bold text-red-600 mb-1">
+                    <div className="text-lg font-bold text-red-600 dark:text-red-400 mb-1">
                       {trendData.peak_usage_hours.data[index].toFixed(2)} kWh
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       {new Date(label).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -460,7 +515,7 @@ const EnergyTrends: React.FC = () => {
                         minute: "2-digit",
                       })}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">Rank #{index + 1}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">Rank #{index + 1}</div>
                   </div>
                 ))}
               </div>

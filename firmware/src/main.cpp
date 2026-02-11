@@ -3,17 +3,17 @@
 #include <WiFiManager.h> 
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
+#include <AsyncEventSource.h>
 #include <ArduinoOTA.h>
 #include <LittleFS.h>
 #include <Preferences.h>
 #include <HTTPClient.h>
-#include <WiFi.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <esp_task_wdt.h>
 #include <ArduinoJson.h>
 #include <time.h>
-#include <sys/time.h>
+#include <esp_sntp.h>
 #include "config.h" // config with relevant secrets
 #define DEBUG_MODE  // uncomment to run debug
 
@@ -44,8 +44,10 @@ void settingsServer();
 void handleOTAUpdates(void *);
 void initializeTime();
 unsigned long getEpochTime();
+String isoTimestamp();
 
 AsyncWebServer server(80);
+AsyncEventSource events("/events");
 Preferences preferences;
 
 double currentPower = 0;
@@ -63,12 +65,20 @@ EnergyMonitor emon1;
 EnergyMonitor emon2;
 EnergyMonitor emon3;
 
-// NTP servers
-const char* ntpServer1 = "pool.ntp.org";
-const char* ntpServer2 = "time.nist.gov";
-const char* ntpServer3 = "time.cloudflare.com";
-const long gmtOffset_sec = 5 * 3600; // 5 hours offset for timezone
-const int daylightOffset_sec = 0;
+// WiFi / network config (populated by WiFiManager custom params)
+volatile bool ntpSynced = false;
+
+WiFiManagerParameter* custom_ip_param   = nullptr;
+WiFiManagerParameter* custom_gw_param   = nullptr;
+WiFiManagerParameter* custom_sn_param   = nullptr;
+WiFiManagerParameter* custom_dns1_param = nullptr;
+WiFiManagerParameter* custom_dns2_param = nullptr;
+
+char custom_ip[16]   = DEFAULT_STATIC_IP;
+char custom_gw[16]   = DEFAULT_GATEWAY;
+char custom_sn[16]   = DEFAULT_SUBNET;
+char custom_dns1[16] = DEFAULT_DNS1;
+char custom_dns2[16] = DEFAULT_DNS2;
 
 void setup() {
   DEBUG_BEGIN(115200);
@@ -110,7 +120,7 @@ void setup() {
 
   xTaskCreatePinnedToCore(
     logToAWSScript,
-    "Log to Google Task",
+    "Log to DB Task",
     12000,
     NULL,
     1,
@@ -135,26 +145,19 @@ void loop() {
   delay(1000);
 }
 
+void IRAM_ATTR onNtpSync(struct timeval* tv) {
+  ntpSynced = (tv->tv_sec > 1000000000L);
+}
+
 void initializeTime() {
-  DEBUG_PRINT("Synchronizing time");
-  
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer1, ntpServer2, ntpServer3);
-  
-  struct tm timeinfo;
-  int attempts = 0;
-  while (!getLocalTime(&timeinfo) && attempts < 20) {
-    delay(500);
-    attempts++;
-    DEBUG_PRINT(".");
-  }
-  
-  if (attempts >= 20) {
-    DEBUG_PRINTLN("Failed to obtain time");
-  } else {
+  DEBUG_PRINTLN("Synchronizing time via NTP...");
+  sntp_set_time_sync_notification_cb(onNtpSync);
+  configTime(0, 0, NTP_SERVER_1, NTP_SERVER_2, "time.google.com");
+  for (int i = 0; i < 60 && !ntpSynced; i++) delay(500);
+  if (ntpSynced) {
     DEBUG_PRINTLN("Time synchronized");
-    char timeStr[64];
-    strftime(timeStr, sizeof(timeStr), "%A, %B %d %Y %H:%M:%S", &timeinfo);
-    DEBUG_PRINTLN(timeStr);
+  } else {
+    DEBUG_PRINTLN("NTP sync timed out");
   }
 }
 
@@ -162,6 +165,13 @@ unsigned long getEpochTime() {
   time_t now;
   time(&now);
   return (unsigned long)now;
+}
+
+String isoTimestamp() {
+  time_t t = getEpochTime();
+  char buf[25];
+  strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", gmtime(&t));
+  return String(buf);
 }
 
 void updateCurrent(void *parameters)
@@ -182,14 +192,20 @@ void updateCurrent(void *parameters)
     currentIrms_3 = emon3.calcIrms(1480);
     currentPower = currentIrms_1 * houseVoltage;
 
+    // Push SSE event to all connected clients
+    if (initialized && events.count() > 0) {
+      char ssePayload[96];
+      snprintf(ssePayload, sizeof(ssePayload),
+               "{\"irms1\":%.2f,\"irms2\":%.2f,\"irms3\":%.2f}",
+               currentIrms_1, currentIrms_2, currentIrms_3);
+      events.send(ssePayload, "status", millis());
+    }
+
     unsigned long end = millis();
     unsigned long elapsed = end - start;
     if (elapsed < 1000) {
       vTaskDelay((1000 - elapsed) / portTICK_PERIOD_MS);
     }
-    // else {
-      // vTaskDelay(10 / portTICK_PERIOD_MS); // Minimum delay
-    // }
   }
 }
 
@@ -202,40 +218,96 @@ void loadPreferences()
   calibrationVal3 = preferences.getDouble("calibrationVal3", 100.0 / 0.050 / 27.0);
   numMeasurements = preferences.getInt("numMeasurements", 5);
   interval = preferences.getInt("interval", 60);
+  // Restore network config saved by WiFiManager captive portal
+  strlcpy(custom_ip,   preferences.getString("ip",   DEFAULT_STATIC_IP).c_str(), sizeof(custom_ip));
+  strlcpy(custom_gw,   preferences.getString("gw",   DEFAULT_GATEWAY).c_str(), sizeof(custom_gw));
+  strlcpy(custom_sn,   preferences.getString("sn",   DEFAULT_SUBNET).c_str(), sizeof(custom_sn));
+  strlcpy(custom_dns1, preferences.getString("dns1", DEFAULT_DNS1).c_str(), sizeof(custom_dns1));
+  strlcpy(custom_dns2, preferences.getString("dns2", DEFAULT_DNS2).c_str(), sizeof(custom_dns2));
   preferences.putDouble("houseVoltage", houseVoltage);
   preferences.putDouble("calibrationVal1", calibrationVal1);
   preferences.putDouble("calibrationVal2", calibrationVal2);
   preferences.putDouble("calibrationVal3", calibrationVal3);
   preferences.putInt("numMeasurements", numMeasurements);
   preferences.putInt("interval", interval);
-  preferences.end(); // Fix: Close preferences
+  preferences.end();
 }
 
 void connectToWifi(void *Param) {
-  WiFi.mode(WIFI_STA);
-  IPAddress staticIP(192, 168, 100, 4);
-  IPAddress gateway(192, 168, 100, 1);
-  IPAddress subnet(255, 255, 255, 0);
-  IPAddress dns(1, 1, 1, 1);
   WiFiManager wm;
 
 #ifndef DEBUG_MODE
   wm.setDebugOutput(false);
 #endif
 
-  wm.setSTAStaticIPConfig(staticIP, gateway, subnet, dns);
-  wm.setConfigPortalTimeout(120);
-  WiFi.setHostname("ESP32");
-  if (!wm.autoConnect("Power Meter AP", "password")) {
-    DEBUG_PRINTLN(String("Failed to connect"));
+  // Heap-allocate custom parameters so they remain valid across the callback
+  custom_ip_param   = new WiFiManagerParameter("ip",   "Static IP (blank = DHCP)", custom_ip,   16);
+  custom_gw_param   = new WiFiManagerParameter("gw",   "Gateway",                  custom_gw,   16);
+  custom_sn_param   = new WiFiManagerParameter("sn",   "Subnet",                   custom_sn,   16);
+  custom_dns1_param = new WiFiManagerParameter("dns1", "DNS Primary",               custom_dns1, 16);
+  custom_dns2_param = new WiFiManagerParameter("dns2", "DNS Secondary",             custom_dns2, 16);
+
+  wm.addParameter(custom_ip_param);
+  wm.addParameter(custom_gw_param);
+  wm.addParameter(custom_sn_param);
+  wm.addParameter(custom_dns1_param);
+  wm.addParameter(custom_dns2_param);
+
+  // Save params directly inside the callback (fires before ESP.restart() in the library)
+  wm.setSaveParamsCallback([&]() {
+    strlcpy(custom_ip,   custom_ip_param->getValue(),   sizeof(custom_ip));
+    strlcpy(custom_gw,   custom_gw_param->getValue(),   sizeof(custom_gw));
+    strlcpy(custom_sn,   custom_sn_param->getValue(),   sizeof(custom_sn));
+    strlcpy(custom_dns1, custom_dns1_param->getValue(), sizeof(custom_dns1));
+    strlcpy(custom_dns2, custom_dns2_param->getValue(), sizeof(custom_dns2));
+
+    preferences.begin("settings", false);
+    preferences.putString("ip",   custom_ip);
+    preferences.putString("gw",   custom_gw);
+    preferences.putString("sn",   custom_sn);
+    preferences.putString("dns1", custom_dns1);
+    preferences.putString("dns2", custom_dns2);
+    preferences.end();
+  });
+
+  // Apply static IP if one was saved previously
+  IPAddress _ip, _gw, _sn;
+  if (_ip.fromString(custom_ip) && _gw.fromString(custom_gw) && _sn.fromString(custom_sn)
+      && String(custom_ip) != "" && String(custom_ip) != "0.0.0.0") {
+    wm.setSTAStaticIPConfig(_ip, _gw, _sn);
+  }
+
+  wm.setConfigPortalTimeout(WIFI_AP_TIMEOUT_SEC);
+  WiFi.setHostname(WIFI_AP_NAME);
+  if (!wm.autoConnect(WIFI_AP_NAME)) {
+    DEBUG_PRINTLN("Failed to connect");
     ESP.restart();
   }
+
+  // Re-read params after a normal (non-portal) connect
+  strlcpy(custom_ip,   custom_ip_param->getValue(),   sizeof(custom_ip));
+  strlcpy(custom_gw,   custom_gw_param->getValue(),   sizeof(custom_gw));
+  strlcpy(custom_sn,   custom_sn_param->getValue(),   sizeof(custom_sn));
+  strlcpy(custom_dns1, custom_dns1_param->getValue(), sizeof(custom_dns1));
+  strlcpy(custom_dns2, custom_dns2_param->getValue(), sizeof(custom_dns2));
+
+  // Re-apply static IP (necessary after reconnect)
+  IPAddress _ip2, _gw2, _sn2;
+  if (_ip2.fromString(custom_ip) && _gw2.fromString(custom_gw) && _sn2.fromString(custom_sn)
+      && String(custom_ip) != "" && String(custom_ip) != "0.0.0.0") {
+    WiFi.config(_ip2, _gw2, _sn2);
+  }
+
+  // Apply DNS (fixes networks where DHCP doesn't provide DNS)
+  IPAddress _d1, _d2;
+  if (!_d1.fromString(custom_dns1)) _d1.fromString(DEFAULT_DNS1);
+  if (!_d2.fromString(custom_dns2)) _d2.fromString(DEFAULT_DNS2);
+  WiFi.config(WiFi.localIP(), WiFi.gatewayIP(), WiFi.subnetMask(), _d1, _d2);
+
   WiFi.setAutoReconnect(true);
-  DEBUG_PRINTLN(String("Connected to WiFi!"));
-  DEBUG_PRINT("IP Address: ");
-  DEBUG_PRINTLN(WiFi.localIP().toString());
-  DEBUG_PRINT("DNS: ");
-  DEBUG_PRINTLN(WiFi.dnsIP().toString());
+  DEBUG_PRINTLN("Connected to WiFi!");
+  DEBUG_PRINT("IP: "); DEBUG_PRINTLN(WiFi.localIP().toString());
+  DEBUG_PRINT("DNS: "); DEBUG_PRINTLN(WiFi.dnsIP().toString());
 }
 
 unsigned long roundToNearestMultiple(unsigned long num, int multiple) {
@@ -334,6 +406,20 @@ void logToAWSScript(void *)
 }
 
 void settingsServer() {
+  // SSE endpoint
+  events.onConnect([](AsyncEventSourceClient *client) {
+    DEBUG_PRINTLN("SSE client connected");
+    // Send an initial snapshot immediately on connect
+    if (initialized) {
+      char ssePayload[96];
+      snprintf(ssePayload, sizeof(ssePayload),
+               "{\"irms1\":%.2f,\"irms2\":%.2f,\"irms3\":%.2f}",
+               currentIrms_1, currentIrms_2, currentIrms_3);
+      client->send(ssePayload, "status", millis(), 1000);
+    }
+  });
+  server.addHandler(&events);
+
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     DEBUG_PRINTLN("Serving index.html");
     request->send(LittleFS, "/index.html", "text/html");
